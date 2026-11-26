@@ -1,32 +1,43 @@
-# My Order Tracker — iPhone PWA edition
+# My Order Tracker V3 — Sports Samaan label maker
 
-This is a browser-based installable app intended for Safari on iPhone.
+## What's new
+- Paste address messages using fields such as Name, Address, Landmark, PIN code, City, State, Mobile, Email and Size.
+- Extract labelled fields automatically, then review/edit them.
+- Preview and print the supplied Sports Samaan label template.
+- Save recipient details and order data locally in this iPhone browser.
+- Track order statuses, count labels/orders and view yearly monthly counts, city-wise and size-wise reports.
+- Export order data as CSV for Excel/Numbers.
+- Offline app shell and local browser storage.
 
-## Features
-- Manual order entry, editing and deletion
-- Personal and Business classification
-- INR currency display
-- Order status, platform and payment method
-- Dashboard with total orders, value, delivered, pending and this-month totals
-- Search and filters
-- Monthly, yearly, platform-wise and product-wise reports
-- CSV export for Excel/Numbers
-- Print-to-PDF using Safari's Share/Print flow
-- Light/dark appearance follows the device
-- Local browser storage and offline shell caching after first successful load
+## Deploy update to existing GitHub Pages repository
+Upload/replace these files at the root of your existing repository:
+- index.html
+- manifest.webmanifest
+- sw.js
+- icon-192.png
+- label-template.jpg
 
-## Important privacy and storage note
-Order records are stored in this browser's localStorage on this iPhone. They are not uploaded to a database by this app. Browser storage is not a guaranteed backup: clearing Safari website data, deleting site data, or removing the installed web app may erase records. Export CSV regularly.
+Commit changes to `main`. GitHub Pages should redeploy automatically. Existing app may need a refresh/reopen to load the new version. The service worker cache name has been incremented for V3.
 
-## Install on iPhone
-A PWA must be served from a secure HTTPS website for Home Screen installation and service-worker offline support. The ZIP itself cannot be installed directly.
-1. Host the contents of this folder at an HTTPS address using a static hosting service.
-2. Open that HTTPS address in Safari on your iPhone.
-3. Tap Share → Add to Home Screen → Add.
-4. Launch the new Home Screen icon. Add a test order and check it remains after closing/reopening.
-5. Export a CSV backup periodically.
+## Printing
+Print layout is configured for portrait 4 x 6 inch paper. Confirm printer support and test on ordinary paper first. The supplied label image is used as the fixed background; extracted recipient fields are overlaid in the recipient area. Check alignment and field wrapping on a test print before using label stock.
 
-## Hosting from an iPhone
-A static host such as GitHub Pages can serve these files, but account creation and repository setup are required. Keep the repository private if you prefer not to expose source code; note that private repository Pages availability depends on the hosting plan. Do not put actual order records in the repository—the app stores them locally in the browser.
+## Important parser limitations
+Address parsing is based on field labels and simple text matching, not AI. It works best when pasted text uses one field per line in a format like:
+Name - ...
+Address - ...
+Landmark - ...
+Pin code - ...
+City - ...
+State - ...
+Mobile - ...
+Email - ...
+Size - ...
 
-This is a starter PWA package, not a hosted URL or native App Store binary.
+Always review and correct extracted fields before saving/printing. If the customer sends an unlabelled or differently formatted address, some fields may need manual correction.
+
+## Privacy and data safety
+Order records stay in this browser's localStorage; the app does not upload them to GitHub. GitHub contains the public app source and label template only. Export CSV backups regularly. Clearing Safari site data or removing the app may erase local records.
+
+
+Label typography update: all recipient value fields use a consistent 26px base size at the original 853px template width (equivalent scaled size in preview/4×6 print). Long values automatically reduce only when required to fit the available line. The label background logo now reads SPORTS SAMAAN. Recipient overlay positions were tuned to keep text aligned with the printed labels and clear of the horizontal rules.

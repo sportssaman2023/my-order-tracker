@@ -1,9 +1,9 @@
 {
-  "name": "My Order Tracker",
-  "short_name": "Order Tracker",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#f4f5f9",
-  "theme_color": "#4f46e5",
-  "description": "Personal and business order tracker stored on your iPhone."
+  "name":"My Order Tracker - Sports Samaan",
+  "short_name":"Order Tracker",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#f4f5f9",
+  "theme_color":"#4f46e5",
+  "description":"Sports Samaan order tracker and shipping label maker."
 }
