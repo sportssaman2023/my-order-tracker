@@ -17,7 +17,7 @@
 header{padding:17px 18px 12px;position:sticky;top:0;background:var(--bg);z-index:3;border-bottom:1px solid var(--line)}h1{font-size:22px;margin:0 0 4px}header p{margin:0;color:var(--muted);font-size:13px}
 main{padding:15px;max-width:800px;margin:auto}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}.metric small{color:var(--muted);display:block;margin-bottom:7px}.metric strong{font-size:21px}
 button,input,select,textarea{font:inherit}button{border:0;border-radius:11px;padding:12px 14px;background:var(--accent);color:white;font-weight:650;cursor:pointer}.secondary{background:var(--soft);color:var(--accent)}.danger{background:#fee2e2;color:#991b1b}.full{width:100%}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}
-nav{position:fixed;bottom:0;left:0;right:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:4}nav button{background:transparent;color:var(--muted);padding:8px 2px;font-size:11px}nav button.active{color:var(--accent);background:var(--soft)}
+nav{position:fixed;bottom:0;left:0;right:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);z-index:4}nav button{background:transparent;color:var(--muted);padding:8px 2px;font-size:11px}nav button.active{color:var(--accent);background:var(--soft)}
 input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);margin-top:5px}label{display:block;font-size:13px;color:var(--muted);margin:10px 0}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.wide{grid-column:1/-1}.title{font-weight:750;margin:19px 0 9px}.muted,.sub{color:var(--muted);font-size:12px}.order{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.order:last-child{border:0}.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:var(--soft);color:var(--accent);font-size:11px;margin-top:4px}.status{font-size:12px;font-weight:700}.Delivered{color:var(--good)}.Cancelled,.Returned{color:var(--bad)}.Ordered,.Shipped{color:var(--warn)}.hidden{display:none!important}.empty{text-align:center;padding:25px;color:var(--muted)}.barline{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12px}.barline span:first-child{width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.barwrap{flex:1;background:var(--line);border-radius:10px}.bar{height:8px;border-radius:10px;background:var(--accent)}dialog{width:min(96vw,650px);max-height:90vh;border:1px solid var(--line);border-radius:17px;background:var(--card);color:var(--ink);padding:16px}dialog::backdrop{background:#0009}.dialoghead{display:flex;justify-content:space-between;align-items:center;gap:8px}.dialoghead h2{font-size:19px;margin:0}.note{font-size:12px;color:var(--muted);line-height:1.5}
 .label-preview-wrap{overflow:auto;background:#d8dce4;padding:10px;border-radius:12px}
 .label-sheet{position:relative;width:min(100%,420px);aspect-ratio:853/1280;margin:auto;background:white;container-type:inline-size}
@@ -73,6 +73,7 @@ input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);borde
    <label>Mobile number<input id="f-mobile" inputmode="tel" autocomplete="tel"></label>
    <label class="wide">Email<input id="f-email" type="email" autocomplete="email"></label>
    <label>Size<input id="f-size" placeholder="e.g. L"></label>
+   <label class="wide">Product name<input id="f-product" placeholder="e.g. Dry Fit T-shirt"></label>
    <label>Order amount (₹)<input id="f-amount" type="number" min="0" step="0.01" inputmode="decimal"></label>
    <label>Order type<select id="f-type"><option>Personal</option><option selected>Business</option></select></label>
    <label>Platform<select id="f-platform"><option>WhatsApp</option><option>Instagram</option><option>Website</option><option>Amazon</option><option>Flipkart</option><option>Other</option></select></label>
@@ -87,7 +88,8 @@ input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);borde
   <div class="label-text" id="p-name"></div><div class="label-text" id="p-address1"></div><div class="label-text" id="p-address2"></div><div class="label-text" id="p-address3"></div><div class="label-text" id="p-mobile"></div>
  </div></div>
  <p id="preview-meta" class="note">The label prints in portrait 4 × 6 inch format. Confirm your printer supports this paper size; otherwise choose a matching custom paper size.</p>
- <button class="full" onclick="printLabel()">Print label</button>
+ <div class="actions"><button class="full" onclick="downloadLabelPDF()">Download shipping label PDF</button><button class="secondary full" onclick="printLabel()">Print label</button></div>
+ <p class="note">On iPhone, tap Download shipping label PDF. If Safari opens the PDF instead of saving it, tap Share → Save to Files.</p>
 </section>
 
 <section id="orders" class="hidden">
@@ -111,9 +113,55 @@ input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);borde
  <div class="title">Monthly order count</div><div class="card" id="monthly"></div>
  <div class="title">Status report</div><div class="card" id="statuses"></div>
  <div class="title">City-wise orders</div><div class="card" id="cities"></div>
- <div class="title">Size-wise orders</div><div class="card" id="sizes"></div>
+ <div class="title">State-wise business reach</div>
+ <div class="grid">
+  <div class="card metric"><small>New customers this year</small><strong id="r-new-customers">0</strong></div>
+  <div class="card metric"><small>States reached</small><strong id="r-states">0</strong></div>
+ </div>
+ <div class="title">Orders by state</div><div class="card" id="state-orders"></div>
+ <div class="title">New customers by state</div><div class="card" id="state-new-customers"></div>
+ <div class="title">State-wise sales value</div><div class="card" id="state-sales"></div>
+ <div class="title">Customer & business insights</div>
+ <div class="grid">
+  <div class="card metric"><small>Unique customers</small><strong id="r-customers">0</strong></div>
+  <div class="card metric"><small>Repeat customers</small><strong id="r-repeat">0</strong></div>
+  <div class="card metric"><small>Average order value</small><strong id="r-aov">₹0</strong></div>
+  <div class="card metric"><small>Delivered sales value</small><strong id="r-delivered-value">₹0</strong></div>
+ </div>
+ <div class="title">Top customers · by order count</div><div class="card" id="top-customers"></div>
+ <div class="title">Customer order history</div><div class="card"><label>Find customer<input id="customerSearch" placeholder="Search name or mobile" oninput="renderCustomerHistory()"></label><div id="customer-history"></div></div>
+ <div class="title">Platform-wise sales value</div><div class="card" id="platform-sales"></div>
+ <div class="title">Product-wise orders</div><div class="card" id="products"></div>
+ <div class="title">Size performance</div>
+ <div class="grid">
+  <div class="card metric"><small>Most ordered size</small><strong id="r-top-size">—</strong></div>
+  <div class="card metric"><small>Sizes recorded</small><strong id="r-size-count">0</strong></div>
+ </div>
+ <div class="title">Orders by size</div><div class="card" id="size-orders"></div>
+ <div class="title">Sales value by size</div><div class="card" id="size-sales"></div>
  <div class="title">Export</div><div class="card actions"><button onclick="exportCSV()">Export Excel-compatible CSV</button><button class="secondary" onclick="printReport()">Save PDF / Print report</button></div>
  <p class="note">CSV opens in Excel or Numbers. For PDF, use Safari's Share → Print, then save/share the PDF preview.</p>
+</section>
+<section id="courier" class="hidden">
+ <div class="title" style="margin-top:0">Courier Serviceability Checker</div>
+ <div class="card">
+  <p class="note">Use your shop PIN as the default origin. The checker opens each courier’s official network or branch lookup. A nearby branch is not proof of home-delivery serviceability, so record results only after the courier confirms coverage.</p>
+  <label>Pickup PIN code (saved on this iPhone)<input id="pickupPin" inputmode="numeric" maxlength="6" value="382424" /></label>
+  <button class="secondary full" onclick="savePickupPin()">Save pickup PIN</button>
+  <label>Customer delivery PIN code<input id="deliveryPin" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit destination PIN" /></label>
+  <button class="full" onclick="openCourierLookups()">Open courier lookup pages</button>
+  <p class="note" id="courierMsg">Default pickup PIN: 382424</p>
+ </div>
+ <div class="title">Courier official lookup links</div>
+ <div class="card" id="courierLinks"></div>
+ <div class="title">Verification notes</div>
+ <div class="card">
+  <label>Courier checked<select id="checkedCourier"><option>Professional Courier</option><option>Shree Anjani Courier</option><option>Shree Tirupati Courier</option><option>DTDC</option><option>Shree Maruti Courier</option><option>Shree Mahavir Courier</option></select></label>
+  <label>Result<select id="checkedResult"><option>Serviceable - confirmed</option><option>Not serviceable - confirmed</option><option>Branch found - delivery unconfirmed</option><option>Manual confirmation required</option></select></label>
+  <label>Notes (optional)<textarea id="courierNote" rows="2" placeholder="Date, branch, phone confirmation, etc."></textarea></label>
+  <button class="full" onclick="saveCourierCheck()">Save verification note</button>
+  <div id="courierHistory" class="note" style="margin-top:12px"></div>
+ </div>
 </section>
 <footer class="note">Order records are stored only in this browser on this iPhone. Export a CSV backup regularly. Clearing Safari website data or removing the web app can erase local records.</footer>
 </main>
@@ -122,17 +170,27 @@ input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);borde
  <button id="tab-label" onclick="showTab('label')">▤<br>Label</button>
  <button id="tab-orders" onclick="showTab('orders')">▣<br>Orders</button>
  <button id="tab-reports" onclick="showTab('reports')">▥<br>Reports</button>
+ <button id="tab-courier" onclick="showTab('courier')">⌖<br>Courier</button>
 </nav>
 <div id="printRoot" class="hidden"></div>
+<dialog id="statusDialog">
+ <div class="dialoghead"><h2>Update order status</h2><button class="secondary" style="padding:6px 10px" onclick="closeStatusDialog()">✕</button></div>
+ <label>Choose status
+  <select id="nextStatus">
+   <option>Ordered</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option><option>Returned</option>
+  </select>
+ </label>
+ <div class="actions" style="margin-top:14px"><button class="secondary" onclick="closeStatusDialog()">Cancel</button><button onclick="saveStatusChange()">Save status</button></div>
+</dialog>
 
 <script>
 const KEY='sports-saman-order-tracker-v3';
-let orders=[];try{orders=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+let orders=[];let editingOrderId=null;try{orders=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
 const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(Number(n)||0);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const save=()=>localStorage.setItem(KEY,JSON.stringify(orders));
 const today=()=>new Date().toISOString().slice(0,10);
-function showTab(t){['home','label','orders','reports'].forEach(x=>{$(x).classList.toggle('hidden',x!==t);$('tab-'+x).classList.toggle('active',x===t)});if(t==='home')renderHome();if(t==='orders')renderOrders();if(t==='reports')renderReports();if(t==='label')updatePreview()}
+function showTab(t){['home','label','orders','reports','courier'].forEach(x=>{$(x).classList.toggle('hidden',x!==t);$('tab-'+x).classList.toggle('active',x===t)});if(t==='home')renderHome();if(t==='orders')renderOrders();if(t==='reports')renderReports();if(t==='label')updatePreview();if(t==='courier')loadCourierSettings()}
 function fieldValue(text,keys){
  const lines=text.split(/\r?\n/);
  for(let i=0;i<lines.length;i++){
@@ -173,7 +231,7 @@ function updatePreview(){
  $('p-address1').textContent=lines[0];
  $('p-address2').textContent=lines[1];
  $('p-address3').textContent=lines[2];
- $('p-mobile').textContent=f.mobile?'MOBILE NO: '+f.mobile:'';
+ $('p-mobile').textContent=f.mobile;
  fitLabelText();
 }
 function fitLabelText(){
@@ -187,21 +245,79 @@ function fitLabelText(){
  });
 }
 window.addEventListener('beforeprint',fitLabelText);
+function customerKey(o){
+ const mobile=String(o.mobile||'').replace(/\D/g,'');
+ return mobile || (String(o.name||'').trim().toLowerCase()+'|'+String(o.pin||'').trim());
+}
+function customerOrders(key){
+ // Orders are newest-first in this app; reverse gives the saved chronological sequence.
+ return [...orders].reverse().filter(o=>customerKey(o)===key);
+}
+function customerOrderNumber(o){
+ const key=customerKey(o),history=customerOrders(key);
+ const i=history.findIndex(x=>x.id===o.id);
+ return i>=0?i+1:history.length+1;
+}
 function saveLabelOrder(){
  const f=getFields();
  if(!f.name||!f.address||!f.mobile){alert('Please enter at least Name, Address and Mobile number before saving.');return}
  const amount=Number($('f-amount').value||0);
- const o={id:crypto.randomUUID(),date:today(),name:f.name,address:f.address,landmark:f.landmark,pin:f.pin,city:f.city,state:f.state,mobile:f.mobile,email:f.email,size:f.size,amount,type:$('f-type').value,platform:$('f-platform').value,payment:$('f-payment').value,status:$('f-status').value,labelSaved:true,printed:false,orderId:'SS-'+Date.now().toString().slice(-8)};
+ const customerKeyValue=(f.mobile||'').replace(/\D/g,'') || (f.name.trim().toLowerCase()+'|'+f.pin.trim());
+ const customerOrderNo=orders.filter(x=>customerKey(x)===customerKeyValue).length+1;
+ const o={id:crypto.randomUUID(),date:today(),createdAt:Date.now(),customerOrderNumber:customerOrderNo,product:$('f-product').value.trim(),name:f.name,address:f.address,landmark:f.landmark,pin:f.pin,city:f.city,state:f.state,mobile:f.mobile,email:f.email,size:f.size,amount,type:$('f-type').value,platform:$('f-platform').value,payment:$('f-payment').value,status:$('f-status').value,labelSaved:true,printed:false,orderId:'SS-'+Date.now().toString().slice(-8)};
  orders.unshift(o);save();renderHome();renderOrders();renderReports();
- alert('Order and shipping label saved. You can now print the label.');
+ alert('Order and shipping label saved. This is customer order #'+customerOrderNo+'.');
 }
+async function downloadLabelPDF(){
+ updatePreview();
+ const sheet=$('preview'),img=sheet.querySelector('img');
+ try{
+  if(!img.complete) await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject});
+  const scale=2, w=img.naturalWidth, h=img.naturalHeight;
+  const canvas=document.createElement('canvas');canvas.width=w*scale;canvas.height=h*scale;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  const sheetRect=sheet.getBoundingClientRect();
+  ['p-name','p-address1','p-address2','p-address3','p-mobile'].forEach(id=>{
+   const el=$(id),r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+   const x=(r.left-sheetRect.left)/sheetRect.width*canvas.width;
+   const y=(r.top-sheetRect.top)/sheetRect.height*canvas.height;
+   const maxW=r.width/sheetRect.width*canvas.width;
+   let fs=(parseFloat(cs.fontSize)||12)*canvas.width/sheetRect.width;
+   const weight=cs.fontWeight==='bold'||Number(cs.fontWeight)>=600?'700':'400';
+   ctx.font=weight+' '+fs+'px Arial, Helvetica, sans-serif';
+   const text=el.textContent||'';
+   while(ctx.measureText(text).width>maxW && fs>8){fs-=0.5;ctx.font=weight+' '+fs+'px Arial, Helvetica, sans-serif'}
+   ctx.fillStyle='#090909';ctx.textBaseline='top';ctx.fillText(text,x,y);
+  });
+  const jpeg=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Could not render label')),'image/jpeg',0.96));
+  const jpg=new Uint8Array(await jpeg.arrayBuffer());
+  const enc=s=>new TextEncoder().encode(s);
+  const chunks=[], offsets=[0];let length=0;
+  const push=b=>{chunks.push(b);length+=b.length};
+  const obj=(n,body)=>{offsets[n]=length;push(enc(n+' 0 obj\n'+body+'\nendobj\n'))};
+  push(enc('%PDF-1.4\n%âãÏÓ\n'));
+  obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  obj(3,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 288 432] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>');
+  offsets[4]=length;push(enc('4 0 obj\n<< /Type /XObject /Subtype /Image /Width '+canvas.width+' /Height '+canvas.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+jpg.length+' >>\nstream\n'));push(jpg);push(enc('\nendstream\nendobj\n'));
+  const stream=enc('q\n288 0 0 432 0 0 cm\n/Im0 Do\nQ\n');
+  offsets[5]=length;push(enc('5 0 obj\n<< /Length '+stream.length+' >>\nstream\n'));push(stream);push(enc('endstream\nendobj\n'));
+  const xref=length;let table='xref\n0 6\n0000000000 65535 f \n';for(let i=1;i<=5;i++)table+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
+  push(enc(table+'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF'));
+  const pdf=new Blob(chunks,{type:'application/pdf'}),url=URL.createObjectURL(pdf),a=document.createElement('a');
+  a.href=url;a.download='Sports-Samaan-Shipping-Label.pdf';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+ }catch(err){alert('Could not create the PDF. Please use Print label and choose Save as PDF from the iPhone print/share options.');console.error(err)}
+}
+
 function printLabel(){
  updatePreview();
  const preview=$('preview').cloneNode(true);
  $('printRoot').innerHTML='';$('printRoot').appendChild(preview);$('printRoot').classList.remove('hidden');
  setTimeout(()=>{window.print();setTimeout(()=>$('printRoot').classList.add('hidden'),500)},200);
 }
-function row(o){return `<div class="order"><div style="flex:1;min-width:0"><b>${esc(o.name)}</b><div class="sub">${esc(o.city||'')} · ${esc(o.mobile)} · ${esc(o.orderId)}</div><span class="pill">${esc(o.type)} · ${esc(o.size||'No size')}</span></div><div style="text-align:right"><b>${money(o.amount)}</b><div class="status ${esc(o.status)}">${esc(o.status)}</div><button class="secondary" style="padding:6px 8px;font-size:11px;margin-top:5px" onclick="viewOrder('${o.id}')">View</button></div></div>`}
+function row(o){return `<div class="order"><div style="flex:1;min-width:0"><b>${esc(o.name)}</b><div class="sub">${esc(o.city||'')} · ${esc(o.mobile)} · ${esc(o.orderId)}</div><span class="pill">${esc(o.type)} · ${esc(o.size||'No size')} · Customer order #${customerOrderNumber(o)}</span></div><div style="text-align:right"><b>${money(o.amount)}</b><div class="status ${esc(o.status)}">${esc(o.status)}</div><button class="secondary" style="padding:6px 8px;font-size:11px;margin-top:5px" onclick="viewOrder('${o.id}')">View</button></div></div>`}
 function renderHome(){
  $('m-count').textContent=orders.length;$('m-total').textContent=money(orders.reduce((s,o)=>s+o.amount,0));
  $('m-labels').textContent=orders.filter(o=>o.labelSaved).length;$('m-pending').textContent=orders.filter(o=>['Ordered','Shipped'].includes(o.status)).length;
@@ -216,11 +332,16 @@ function renderOrders(){
 }
 function viewOrder(id){
  const o=orders.find(x=>x.id===id);if(!o)return;
- const next=prompt('Update status: Ordered, Shipped, Delivered, Cancelled or Returned',o.status);
- if(next&&['Ordered','Shipped','Delivered','Cancelled','Returned'].includes(next)){o.status=next;save();renderHome();renderOrders();renderReports()}
+ editingOrderId=id;$('nextStatus').value=o.status;
+ const dlg=$('statusDialog');
+ if(typeof dlg.showModal==='function')dlg.showModal();else{const next=prompt('Choose status: Ordered, Shipped, Delivered, Cancelled or Returned',o.status);if(next&&['Ordered','Shipped','Delivered','Cancelled','Returned'].includes(next))applyStatus(next)}
 }
+function closeStatusDialog(){const dlg=$('statusDialog');if(dlg.open)dlg.close();editingOrderId=null}
+function saveStatusChange(){const next=$('nextStatus').value;if(!['Ordered','Shipped','Delivered','Cancelled','Returned'].includes(next))return;applyStatus(next);closeStatusDialog()}
+function applyStatus(next){const o=orders.find(x=>x.id===editingOrderId);if(!o)return;o.status=next;save();renderHome();renderOrders();renderReports()}
 function sumBy(list,key){const x={};list.forEach(o=>{const k=o[key]||'Not entered';x[k]=(x[k]||0)+1});return Object.entries(x).sort((a,b)=>b[1]-a[1])}
 function bars(el,list){const max=Math.max(1,...list.map(x=>x[1]));$(el).innerHTML=list.length?list.map(([k,v])=>`<div class="barline"><span>${esc(k)}</span><div class="barwrap"><div class="bar" style="width:${Math.max(2,v/max*100)}%"></div></div><b>${v}</b></div>`).join(''):'<div class="empty">No report data.</div>'}
+function renderMoneyBars(el,list){const max=Math.max(1,...list.map(x=>x[1]));$(el).innerHTML=list.length?list.map(([k,v])=>`<div class=\"barline\"><span>${esc(k)}</span><div class=\"barwrap\"><div class=\"bar\" style=\"width:${Math.max(2,v/max*100)}%\"></div></div><b>${money(v)}</b></div>`).join(''):'<div class=\"empty\">No report data.</div>'}
 function renderReports(){
  const years=[...new Set([new Date().getFullYear(),...orders.map(o=>Number((o.date||today()).slice(0,4)))])].sort((a,b)=>b-a),old=$('reportYear').value;
  $('reportYear').innerHTML=years.map(y=>`<option>${y}</option>`).join('');$('reportYear').value=years.includes(Number(old))?old:String(years[0]);
@@ -228,15 +349,78 @@ function renderReports(){
  $('r-count').textContent=list.length;$('r-total').textContent=money(list.reduce((s,o)=>s+o.amount,0));$('r-labels').textContent=list.filter(o=>o.labelSaved).length;$('r-delivered').textContent=list.filter(o=>o.status==='Delivered').length;
  bars('monthly',Array.from({length:12},(_,i)=>[new Date(y,i,1).toLocaleString('en-IN',{month:'short'}),list.filter(o=>Number((o.date||'').slice(5,7))===i+1).length]));
  bars('statuses',sumBy(list,'status'));bars('cities',sumBy(list,'city'));bars('sizes',sumBy(list,'size'));
+ renderGeographyAndSizes(list,y);
+ const grouped=new Map();
+ list.forEach(o=>{const k=customerKey(o);if(!grouped.has(k))grouped.set(k,{key:k,name:o.name||'Unnamed',mobile:o.mobile||'',orders:0,delivered:0,spend:0,lastDate:o.date||''});const c=grouped.get(k);c.orders++;if(o.status==='Delivered')c.delivered++;c.spend+=Number(o.amount)||0;if((o.date||'')>c.lastDate)c.lastDate=o.date;});
+ const customers=[...grouped.values()].sort((a,b)=>b.orders-a.orders||b.spend-a.spend);
+ $('r-customers').textContent=customers.length;
+ $('r-repeat').textContent=customers.filter(c=>c.orders>1).length;
+ $('r-aov').textContent=money(list.length?list.reduce((a,o)=>a+(Number(o.amount)||0),0)/list.length:0);
+ $('r-delivered-value').textContent=money(list.filter(o=>o.status==='Delivered').reduce((a,o)=>a+(Number(o.amount)||0),0));
+ $('top-customers').innerHTML=customers.length?customers.slice(0,10).map(c=>`<div class="order"><div style="flex:1;min-width:0"><b>${esc(c.name)}</b><div class="sub">${esc(c.mobile||'No mobile')} · Last order: ${esc(c.lastDate||'—')}</div><span class="pill">${c.orders} order${c.orders===1?'':'s'} · ${c.delivered} delivered</span></div><b>${money(c.spend)}</b></div>`).join(''):'<div class="empty">No customer data yet.</div>';
+ const platforms={};list.forEach(o=>{const k=o.platform||'Not entered';platforms[k]=(platforms[k]||0)+(Number(o.amount)||0)});
+ renderMoneyBars('platform-sales',Object.entries(platforms).sort((a,b)=>b[1]-a[1]));
+ const prod={};list.forEach(o=>{const k=o.product||'Product not entered';prod[k]=(prod[k]||0)+1});bars('products',Object.entries(prod).sort((a,b)=>b[1]-a[1]));
+ renderCustomerHistory();
+}
+function renderGeographyAndSizes(yearOrders,year){
+ const stateName=o=>(o.state||'').trim()||'State not entered';
+ const stateOrders={}; const stateSales={};
+ yearOrders.forEach(o=>{const k=stateName(o);stateOrders[k]=(stateOrders[k]||0)+1;stateSales[k]=(stateSales[k]||0)+(Number(o.amount)||0)});
+ bars('state-orders',Object.entries(stateOrders).sort((a,b)=>b[1]-a[1]));
+ renderMoneyBars('state-sales',Object.entries(stateSales).sort((a,b)=>b[1]-a[1]));
+ // A customer's first recorded order determines their acquisition year and acquisition state.
+ const firstByCustomer=new Map();
+ [...orders].sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(Number(a.createdAt)||0)-(Number(b.createdAt)||0)).forEach(o=>{
+  const k=customerKey(o); if(!firstByCustomer.has(k)) firstByCustomer.set(k,{date:o.date||'',state:stateName(o)});
+ });
+ const newByState={};
+ firstByCustomer.forEach(c=>{if(Number((c.date||'').slice(0,4))===year)newByState[c.state]=(newByState[c.state]||0)+1});
+ const newTotal=Object.values(newByState).reduce((a,b)=>a+b,0);
+ $('r-new-customers').textContent=newTotal;
+ $('r-states').textContent=Object.keys(stateOrders).filter(k=>k!=='State not entered').length;
+ bars('state-new-customers',Object.entries(newByState).sort((a,b)=>b[1]-a[1]));
+ const sizeOrders={};const sizeSales={};
+ yearOrders.forEach(o=>{const k=(o.size||'').trim().toUpperCase()||'Size not entered';sizeOrders[k]=(sizeOrders[k]||0)+1;sizeSales[k]=(sizeSales[k]||0)+(Number(o.amount)||0)});
+ const ranked=Object.entries(sizeOrders).filter(([k])=>k!=='Size not entered').sort((a,b)=>b[1]-a[1]);
+ $('r-top-size').textContent=ranked[0]?.[0]||'—';
+ $('r-size-count').textContent=ranked.length;
+ bars('size-orders',Object.entries(sizeOrders).sort((a,b)=>b[1]-a[1]));
+ renderMoneyBars('size-sales',Object.entries(sizeSales).sort((a,b)=>b[1]-a[1]));
+}
+function renderCustomerHistory(){
+ const box=$('customer-history');if(!box)return;
+ const q=($('customerSearch')?.value||'').trim().toLowerCase();
+ const groups=new Map();
+ [...orders].reverse().forEach((o,i)=>{const k=customerKey(o);if(!groups.has(k))groups.set(k,[]);groups.get(k).push({...o,_sequence:groups.get(k).length+1});});
+ const matches=[...groups.values()].filter(g=>{const o=g[g.length-1];return !q||[o.name,o.mobile].join(' ').toLowerCase().includes(q)}).sort((a,b)=>b.length-a.length);
+ box.innerHTML=matches.length?matches.slice(0,30).map(g=>{const latest=g[g.length-1];return `<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>${esc(latest.name)}</b><div class="sub">${esc(latest.mobile||'No mobile')} · ${g.length} total order${g.length===1?'':'s'}</div>${g.map(o=>`<div class="sub" style="margin-top:5px">#${o._sequence} · ${esc(o.date||'')} · ${esc(o.product||'Product not entered')} · ${money(o.amount)} · ${esc(o.status||'')}</div>`).join('')}</div>`}).join(''):'<div class="empty">No matching customers.</div>';
 }
 function exportCSV(){
- const headers=['Order ID','Order Date','Name','Address','Landmark','PIN','City','State','Mobile','Email','Size','Amount INR','Type','Platform','Payment','Status','Label Saved'];
- const keys=['orderId','date','name','address','landmark','pin','city','state','mobile','email','size','amount','type','platform','payment','status','labelSaved'];
+ const headers=['Order ID','Order Date','Customer Order Number','Product','Name','Address','Landmark','PIN','City','State','Mobile','Email','Size','Amount INR','Type','Platform','Payment','Status','Label Saved'];
+ const keys=['orderId','date','customerOrderNumber','product','name','address','landmark','pin','city','state','mobile','email','size','amount','type','platform','payment','status','labelSaved'];
  const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
  const csv=[headers,...orders.map(o=>keys.map(k=>o[k]))].map(r=>r.map(q).join(',')).join('\r\n');
  const a=document.createElement('a'),url=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.href=url;a.download='Sports-Saman-Orders.csv';a.click();URL.revokeObjectURL(url);
 }
 function printReport(){window.print()}
+
+const PICKUP_KEY='sports-saman-courier-pickup-pin-v1', COURIER_LOG_KEY='sports-saman-courier-checks-v1';
+const courierSites=[
+ ['Professional Courier','https://www.tpcindia.com/Network.aspx','Network search by destination PIN / area'],
+ ['Shree Anjani Courier','https://www.shreeanjanicourier.com/network.php','Network / regional offices; confirm delivery with local centre'],
+ ['Shree Tirupati Courier','https://shreetirupaticourier.net/network.aspx','Network search: centre, PIN, state or area'],
+ ['DTDC','https://www.dtdc.com/','Official site; use its location / serviceability tools'],
+ ['Shree Maruti Courier','https://shreemaruti.com/','Branch locator and personal-courier route check'],
+ ['Shree Mahavir Courier','https://shreemahavircourier.in/','Find our Outlet by centre / PIN']
+];
+function loadCourierSettings(){const pin=localStorage.getItem(PICKUP_KEY)||'382424';$('pickupPin').value=pin;renderCourierLinks();renderCourierHistory()}
+function savePickupPin(){const p=$('pickupPin').value.replace(/\D/g,'');if(!/^\d{6}$/.test(p)){alert('Enter a valid 6-digit pickup PIN.');return}localStorage.setItem(PICKUP_KEY,p);$('pickupPin').value=p;$('courierMsg').textContent='Pickup PIN saved: '+p;renderCourierLinks()}
+function renderCourierLinks(){const p=$('deliveryPin').value.replace(/\D/g,'');$('courierLinks').innerHTML=courierSites.map(([n,u,d])=>`<div class="order"><div><b>${esc(n)}</b><div class="muted">${esc(d)}</div></div><button class="secondary" onclick="window.open('${u}','_blank','noopener')">Open</button></div>`).join('');}
+function openCourierLookups(){const d=$('deliveryPin').value.replace(/\D/g,'');if(!/^\d{6}$/.test(d)){alert('Enter a valid 6-digit customer PIN code first.');return}const p=localStorage.getItem(PICKUP_KEY)||'382424';$('courierMsg').textContent='Pickup '+p+' → Destination '+d+'. Open each official lookup and verify delivery coverage; some pages may require manual entry.';renderCourierLinks();window.open('https://www.tpcindia.com/Network.aspx','_blank','noopener')}
+function saveCourierCheck(){const d=$('deliveryPin').value.replace(/\D/g,'');if(!/^\d{6}$/.test(d)){alert('Enter a valid 6-digit customer PIN code first.');return}const arr=JSON.parse(localStorage.getItem(COURIER_LOG_KEY)||'[]');arr.unshift({courier:$('checkedCourier').value,result:$('checkedResult').value,pickup:localStorage.getItem(PICKUP_KEY)||'382424',delivery:d,note:$('courierNote').value,date:new Date().toISOString()});localStorage.setItem(COURIER_LOG_KEY,JSON.stringify(arr));$('courierNote').value='';renderCourierHistory();alert('Verification note saved on this iPhone.')}
+function renderCourierHistory(){const arr=JSON.parse(localStorage.getItem(COURIER_LOG_KEY)||'[]');$('courierHistory').innerHTML=arr.length?arr.slice(0,20).map(x=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(x.courier)}</b> · ${esc(x.result)}<br>PIN ${esc(x.pickup)} → ${esc(x.delivery)}<br>${new Date(x.date).toLocaleString()} ${esc(x.note||'')}</div>`).join(''):'No verification notes saved yet.'}
+
 renderHome();
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 </script>
